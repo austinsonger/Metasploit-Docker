@@ -44,8 +44,7 @@ RUN gem install bundler -v '1.17.3'
 #Install Metasploit
 RUN git clone --depth=1 https://github.com/rapid7/metasploit-framework.git && \
   cd metasploit-framework && \
-  bundle install && \
-  rm -rf .git
+  bundle install 
 
 WORKDIR /metasploit-framework
 
