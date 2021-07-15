@@ -2,8 +2,6 @@ FROM ubuntu:18.04
 
 LABEL maintainer="austin@songer.pro"
 
-COPY localtime /etc/
-
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -y \
