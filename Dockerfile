@@ -1,51 +1,59 @@
-FROM ubuntu:18.04
+FROM ubuntu:20.04
 
 LABEL maintainer="austin@songer.pro"
 
-ENV DEBIAN_FRONTEND=noninteractive
+# Update system
+RUN apt-get update && apt-get dist-upgrade -y && apt-get install -y software-properties-common && rm -rf /var/lib/apt/lists/*
 
-RUN apt-get update && apt-get install -y \
-  build-essential \
-  git-core \
-  subversion \
-  vim \
-  wget \
-  smbclient \
-  nfs-common \
-  rsh-client \
-  whois \
-  snmp \
-  libreadline-dev \
-  libpq5 \
-  libpq-dev \
-  libreadline5 \
-  libsqlite3-dev \
-  libpcap-dev \
+# Install base dependency packages
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install \
   autoconf \
-  postgresql \
-  pgadmin3 \
+  bison \
+  build-essential \
   curl \
-  zlib1g-dev \
-  libxml2-dev \
-  libxslt1-dev \
-  libyaml-dev \
-  ssh \
-  slurm \
-  curl \
+  git-core \
+  libapr1 \
+  libaprutil1 \
+  libcurl4-openssl-dev \
+  libgmp3-dev \
+  libpcap-dev \
+  libpq-dev \
+  libreadline6-dev \
+  libsqlite3-dev \
   libssl-dev \
-  tzdata \
+  libsvn1 \
+  libtool \
+  libxml2 \
+  libxml2-dev \
+  libxslt-dev \
+  libyaml-dev \
+  locate \
+  ncurses-dev \
+  openssl \
+  postgresql \
+  postgresql-contrib \
+  wget \
+  xsel \
+  zlib1g \
+  zlib1g-dev \
+  && rm -rf /var/lib/apt/lists/*
+
+# Install ruby packages
+RUN apt-get update && apt-get -y install \
   ruby \
-  net-tools \
-  ruby-dev && \
-  rm -rf /var/lib/apt/lists/* && rm -rf /var/cache/apt/*
+  ruby-dev \
+  && rm -rf /var/lib/apt/lists/*
 
-RUN gem install bundler -v '1.17.3'
+# Install bundle
+RUN /bin/bash -l -c "gem install bundler"
 
-#Install Metasploit
-RUN git clone --depth=1 https://github.com/rapid7/metasploit-framework.git && \
-  cd metasploit-framework && \
-  bundle install 
+# Clone Metasploit github
+RUN git clone https://github.com/rapid7/metasploit-framework /opt/metasploit-framework
 
-WORKDIR /metasploit-framework
+WORKDIR /opt/metasploit-framework
 
-CMD ["/metasploit-framework/msfconsole"]
+# Install Metasploit ruby dependency
+RUN /bin/bash -l -c "bundle install"
+
+# Create symbolic links
+RUN ln -s /opt/metasploit-framework/msf* /bin/
